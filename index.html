@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Ajar Interaktif - Teknik Alat Berat SMK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        caterpillar: {
+                            yellow: '#FFCC00', // Iconic heavy equipment yellow
+                            black: '#222222',
+                            darkGray: '#333333',
+                            lightGray: '#f4f4f4'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Lab Canvas Style */
+        #hydraulic-canvas {
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            width: 100%;
+            height: 400px;
+            cursor: pointer;
+        }
+
+        .nav-active {
+            background-color: #FFCC00;
+            color: #222222;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-caterpillar-black text-white flex flex-col shadow-xl z-20 transition-transform duration-300 transform -translate-x-full md:translate-x-0 absolute md:relative h-full" id="sidebar">
+        <div class="p-6 flex items-center justify-between border-b border-gray-700">
+            <div>
+                <h1 class="text-xl font-bold text-caterpillar-yellow tracking-wider flex items-center">
+                    <i class="fa-solid fa-truck-monster mr-2"></i> TAB - XII
+                </h1>
+                <p class="text-xs text-gray-400 mt-1">Teknik Alat Berat</p>
+            </div>
+            <button id="close-sidebar" class="md:hidden text-gray-400 hover:text-white">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-active w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors hover:bg-gray-800 hover:text-caterpillar-yellow">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                <span>Beranda</span>
+            </button>
+            <button onclick="switchTab('engine')" id="btn-engine" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left text-gray-300 transition-colors hover:bg-gray-800 hover:text-caterpillar-yellow">
+                <i class="fa-solid fa-gears w-5 text-center"></i>
+                <span>Sistem Engine</span>
+            </button>
+            <button onclick="switchTab('hydraulic')" id="btn-hydraulic" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left text-gray-300 transition-colors hover:bg-gray-800 hover:text-caterpillar-yellow">
+                <i class="fa-solid fa-water w-5 text-center"></i>
+                <span>Lab Hidrolik <span class="ml-2 px-2 py-0.5 text-[10px] bg-blue-600 text-white rounded-full">3D/Interaktif</span></span>
+            </button>
+            <button onclick="switchTab('powertrain')" id="btn-powertrain" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left text-gray-300 transition-colors hover:bg-gray-800 hover:text-caterpillar-yellow">
+                <i class="fa-solid fa-truck-ramp-box w-5 text-center"></i>
+                <span>Pemindah Tenaga</span>
+            </button>
+            <button onclick="switchTab('maintenance')" id="btn-maintenance" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left text-gray-300 transition-colors hover:bg-gray-800 hover:text-caterpillar-yellow">
+                <i class="fa-solid fa-screwdriver-wrench w-5 text-center"></i>
+                <span>Perawatan Berkala</span>
+            </button>
+            <button onclick="switchTab('quiz')" id="btn-quiz" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left text-gray-300 transition-colors hover:bg-gray-800 hover:text-caterpillar-yellow">
+                <i class="fa-solid fa-clipboard-question w-5 text-center"></i>
+                <span>Evaluasi / Kuis</span>
+            </button>
+        </nav>
+
+        <div class="p-4 bg-gray-900 text-center border-t border-gray-700">
+            <p class="text-xs text-gray-400">Disusun oleh:</p>
+            <p class="text-sm font-semibold text-caterpillar-yellow">Dzul Ashfi Irawan</p>
+            <p class="text-[10px] mt-1 text-gray-500">SMK Kelas XII - Kurikulum Merdeka</p>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full w-full bg-slate-50 relative">
+        <!-- Header for mobile -->
+        <header class="bg-white shadow-sm border-b px-6 py-4 flex items-center justify-between md:hidden">
+            <h2 class="font-bold text-slate-800">TAB Media Ajar</h2>
+            <button id="open-sidebar" class="text-slate-600 hover:text-slate-900 focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 md:p-10 relative scroll-smooth" id="main-content">
+            
+            <section id="content-dashboard" class="animate-fade-in block">
+                <div class="bg-gradient-to-r from-caterpillar-black to-gray-800 rounded-2xl p-8 text-white shadow-lg mb-8 relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-20 pointer-events-none">
+                        <i class="fa-solid fa-truck-monster text-9xl"></i>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Selamat Datang di Virtual Lab TAB</h2>
+                    <p class="text-gray-300 max-w-2xl text-lg mb-6">Media Ajar Interaktif Teknik Alat Berat Fase F (Kelas XII). Eksplorasi sistem engine, simulasikan sirkuit hidrolik, dan pelajari prosedur perawatan unit alat berat.</p>
+                    <button onclick="switchTab('hydraulic')" class="bg-caterpillar-yellow text-caterpillar-black px-6 py-3 rounded-lg font-bold hover:bg-yellow-400 transition-colors shadow-md">
+                        Mulai Simulasi Hidrolik <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTab('engine')">
+                        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-gears"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Engine System</h3>
+                        <p class="text-slate-500 text-sm">Pelajari komponen utama penggerak mula mesin diesel pada alat berat.</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-blue-500" onclick="switchTab('hydraulic')">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-water"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Virtual Lab Hidrolik</h3>
+                        <p class="text-slate-500 text-sm">Simulasi interaktif aliran fluida, pompa, katup kontrol, dan aktuator.</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onclick="switchTab('maintenance')">
+                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Perawatan Berkala</h3>
+                        <p class="text-slate-500 text-sm">Prosedur Preventive Maintenance (250, 500, 1000 Jam kerja).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-engine" class="hidden animate-fade-in">
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Sistem Engine (Penggerak Mula)</h2>
+                        <p class="text-slate-500">Mempelajari komponen utama engine diesel alat berat.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8 flex flex-col md:flex-row">
+                    <!-- Interactive Diagram Placeholder -->
+                    <div class="md:w-1/2 bg-slate-800 p-8 flex items-center justify-center relative min-h-[300px]">
+                        <!-- Simplified SVG Engine representation -->
+                        <svg viewBox="0 0 400 300" class="w-full max-w-sm drop-shadow-2xl">
+                            <!-- Block -->
+                            <rect x="100" y="100" width="200" height="150" fill="#475569" rx="10" />
+                            <rect x="90" y="90" width="220" height="20" fill="#94a3b8" rx="5" id="cylinder-head" class="cursor-pointer hover:fill-caterpillar-yellow transition-colors" onclick="showEngineInfo('head')" />
+                            
+                            <!-- Pistons (Animated later via JS/CSS if needed, static for now) -->
+                            <rect x="130" y="120" width="40" height="60" fill="#cbd5e1" id="piston1" class="cursor-pointer hover:fill-white" onclick="showEngineInfo('piston')" />
+                            <rect x="230" y="140" width="40" height="60" fill="#cbd5e1" id="piston2" class="cursor-pointer hover:fill-white" onclick="showEngineInfo('piston')" />
+                            
+                            <!-- Crankshaft area -->
+                            <circle cx="150" cy="220" r="20" fill="#334155" />
+                            <circle cx="250" cy="220" r="20" fill="#334155" />
+                            <rect x="150" y="210" width="100" height="20" fill="#64748b" id="crankshaft" class="cursor-pointer hover:fill-caterpillar-yellow transition-colors" onclick="showEngineInfo('crankshaft')" />
+                            
+                            <!-- Turbo area -->
+                            <circle cx="320" cy="110" r="25" fill="#f59e0b" id="turbo" class="cursor-pointer hover:fill-yellow-300 transition-colors" onclick="showEngineInfo('turbo')" />
+                            <path d="M 320 110 Q 350 80 380 110" stroke="#f59e0b" stroke-width="5" fill="none"/>
+                            
+                            <text x="200" y="50" fill="white" text-anchor="middle" class="text-lg font-bold">Klik komponen pada diagram</text>
+                        </svg>
+                    </div>
+                    
+                    <div class="md:w-1/2 p-6 flex flex-col justify-center bg-slate-50" id="engine-info-panel">
+                        <div class="w-12 h-12 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-hand-pointer"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Pilih Komponen</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            Silakan klik bagian mesin pada diagram di sebelah kiri untuk melihat detail fungsi dan perawatannya.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg mb-3 flex items-center"><i class="fa-solid fa-gas-pump text-red-500 mr-2"></i> Sistem Bahan Bakar</h4>
+                        <p class="text-sm text-slate-600 mb-2">Terdiri dari tangki, filter, fuel transfer pump, injection pump, dan injector. Berfungsi mensuplai bahan bakar bertekanan tinggi ke ruang bakar.</p>
+                        <ul class="list-disc list-inside text-sm text-slate-500 ml-2 space-y-1">
+                            <li>Common Rail System (Modern)</li>
+                            <li>Inline / Rotary Pump (Konvensional)</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg mb-3 flex items-center"><i class="fa-solid fa-wind text-blue-500 mr-2"></i> Sistem Pemasukan & Pembuangan</h4>
+                        <p class="text-sm text-slate-600 mb-2">Mensuplai udara bersih untuk pembakaran (Intake) dan membuang gas sisa (Exhaust).</p>
+                        <ul class="list-disc list-inside text-sm text-slate-500 ml-2 space-y-1">
+                            <li>Pre-cleaner & Air Filter</li>
+                            <li>Turbocharger (Meningkatkan volume udara)</li>
+                            <li>Muffler / Silencer</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-hydraulic" class="hidden animate-fade-in">
+                <div class="mb-4">
+                    <h2 class="text-2xl font-bold text-slate-800">Virtual Laboratory: Sistem Hidrolik</h2>
+                    <p class="text-slate-500">Simulasikan hukum Pascal dan aliran fluida bertekanan untuk menggerakkan silinder.</p>
+                </div>
+
+                <!-- Lab Container -->
+                <div class="bg-slate-900 rounded-xl p-4 shadow-xl border border-slate-700 relative flex flex-col">
+                    
+                    <!-- Control Panel (Top) -->
+                    <div class="bg-slate-800 rounded-lg p-4 mb-4 flex flex-wrap items-center justify-between gap-4 border border-slate-600">
+                        <div class="flex items-center space-x-4">
+                            <!-- Pump Switch -->
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-bold">Motor/Pompa</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                  <input type="checkbox" id="pump-switch" class="sr-only peer" onchange="togglePump()">
+                                  <div class="w-14 h-7 bg-red-500 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 shadow-inner"></div>
+                                </label>
+                                <span id="pump-status-text" class="text-xs text-red-400 mt-1 font-mono">OFF</span>
+                            </div>
+
+                            <div class="h-10 border-l border-slate-600 mx-2"></div>
+
+                            <!-- Directional Valve Lever -->
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-bold">Control Valve</span>
+                                <div class="flex bg-slate-700 rounded-lg p-1">
+                                    <button onclick="setValveState('retract')" id="btn-retract" class="px-3 py-1 text-sm rounded hover:bg-slate-600 text-white transition"><i class="fa-solid fa-arrow-left"></i> Retract</button>
+                                    <button onclick="setValveState('neutral')" id="btn-neutral" class="px-3 py-1 text-sm rounded bg-blue-600 text-white shadow transition">Neutral</button>
+                                    <button onclick="setValveState('extend')" id="btn-extend" class="px-3 py-1 text-sm rounded hover:bg-slate-600 text-white transition">Extend <i class="fa-solid fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Telemetry / Gauges -->
+                        <div class="flex space-x-6 bg-slate-900 p-3 rounded-lg border border-slate-700">
+                            <div class="flex flex-col items-end">
+                                <span class="text-[10px] text-gray-400">System Pressure</span>
+                                <div class="flex items-baseline space-x-1">
+                                    <span id="gauge-pressure" class="text-xl font-mono text-green-400 font-bold">0</span>
+                                    <span class="text-xs text-gray-500">PSI</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="text-[10px] text-gray-400">Cylinder Pos</span>
+                                <div class="flex items-baseline space-x-1">
+                                    <span id="gauge-position" class="text-xl font-mono text-blue-400 font-bold">0</span>
+                                    <span class="text-xs text-gray-500">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HTML5 Canvas for the simulation -->
+                    <div class="relative w-full">
+                        <canvas id="hydraulic-canvas" width="800" height="400"></canvas>
+                        
+                        <!-- Overlay Labels (Absolute positioned over canvas for clarity) -->
+                        <div class="absolute bottom-4 left-8 text-white text-xs bg-black/50 px-2 py-1 rounded border border-gray-600">Tangki (Reservoir)</div>
+                        <div class="absolute bottom-20 left-32 text-white text-xs bg-black/50 px-2 py-1 rounded border border-gray-600">Pompa Hidrolik</div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs bg-black/50 px-2 py-1 rounded border border-gray-600">Directional Control Valve (DCV)</div>
+                        <div class="absolute top-10 right-20 text-white text-xs bg-black/50 px-2 py-1 rounded border border-gray-600">Silinder Aktuator</div>
+                        
+                        <!-- Load interactive weight -->
+                        <div id="load-weight" class="absolute top-10 right-4 w-12 h-12 bg-gray-600 border-2 border-gray-400 rounded flex flex-col items-center justify-center cursor-ns-resize shadow-lg transition-transform" style="transform: translateX(0px);">
+                            <span class="text-[10px] text-gray-300">Beban</span>
+                            <span class="font-bold text-white text-sm">1 T</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm text-gray-400 bg-slate-800 p-3 rounded border border-slate-700">
+                        <p><strong>Instruksi Lab:</strong> 1. Nyalakan Pompa. 2. Ubah tuas Control Valve ke 'Extend' untuk memanjangkan silinder, atau 'Retract' untuk memendekkan. Perhatikan aliran warna merah (bertekanan) dan biru (kembali ke tangki).</p>
+                    </div>
+                </div>
+            </section>
+
+             <section id="content-powertrain" class="hidden animate-fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Sistem Pemindah Tenaga (Power Train)</h2>
+                    <p class="text-slate-500">Rangkaian komponen yang meneruskan tenaga dari engine hingga ke penggerak akhir (roda/track).</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Aliran Tenaga (Power Flow)</h3>
+                    
+                    <!-- Flowchart representation -->
+                    <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 py-8 overflow-x-auto">
+                        
+                        <div class="flex flex-col items-center min-w-[120px]">
+                            <div class="w-16 h-16 rounded-full bg-red-100 border-2 border-red-500 flex items-center justify-center text-red-600 mb-2 shadow-sm">
+                                <i class="fa-solid fa-gears text-2xl"></i>
+                            </div>
+                            <span class="font-bold text-sm text-center">Engine</span>
+                        </div>
+                        
+                        <i class="fa-solid fa-arrow-right text-gray-300 text-xl hidden md:block"></i>
+                        <i class="fa-solid fa-arrow-down text-gray-300 text-xl md:hidden"></i>
+
+                        <div class="flex flex-col items-center min-w-[120px]">
+                            <div class="w-16 h-16 rounded-full bg-blue-100 border-2 border-blue-500 flex items-center justify-center text-blue-600 mb-2 shadow-sm">
+                                <i class="fa-solid fa-compact-disc text-2xl"></i>
+                            </div>
+                            <span class="font-bold text-sm text-center">Torque Converter /<br>Clutch</span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right text-gray-300 text-xl hidden md:block"></i>
+                        <i class="fa-solid fa-arrow-down text-gray-300 text-xl md:hidden"></i>
+
+                        <div class="flex flex-col items-center min-w-[120px]">
+                            <div class="w-16 h-16 rounded-full bg-purple-100 border-2 border-purple-500 flex items-center justify-center text-purple-600 mb-2 shadow-sm">
+                                <i class="fa-solid fa-code-branch text-2xl"></i>
+                            </div>
+                            <span class="font-bold text-sm text-center">Transmission</span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right text-gray-300 text-xl hidden md:block"></i>
+                        <i class="fa-solid fa-arrow-down text-gray-300 text-xl md:hidden"></i>
+
+                        <div class="flex flex-col items-center min-w-[120px]">
+                            <div class="w-16 h-16 rounded-full bg-green-100 border-2 border-green-500 flex items-center justify-center text-green-600 mb-2 shadow-sm">
+                                <i class="fa-solid fa-dharmachakra text-2xl"></i>
+                            </div>
+                            <span class="font-bold text-sm text-center">Final Drive &<br>Undercarriage</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-5 rounded-lg border border-blue-100">
+                        <h4 class="font-bold text-blue-900 mb-2">Torque Converter</h4>
+                        <p class="text-sm text-blue-800">Menghubungkan engine ke transmisi menggunakan media fluida (oli). Berfungsi juga untuk melipatgandakan torsi saat beban berat. Terdiri dari Impeller, Turbine, dan Stator.</p>
+                    </div>
+                    <div class="bg-purple-50 p-5 rounded-lg border border-purple-100">
+                        <h4 class="font-bold text-purple-900 mb-2">Planetary Gear Transmission</h4>
+                        <p class="text-sm text-purple-800">Sistem transmisi yang sering digunakan pada alat berat (seperti Bulldozer). Memungkinkan perpindahan gigi di bawah beban (Power Shift) tanpa memutuskan tenaga dengan kopling gesek manual.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-maintenance" class="hidden animate-fade-in">
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Perawatan Berkala (Preventive Maintenance)</h2>
+                        <p class="text-slate-500">Ceklis standar perawatan unit berdasarkan Jam Operasi (HM - Hour Meter).</p>
+                    </div>
+                    <div class="hidden sm:block">
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold border border-green-200">Elemen 7 Kurikulum Merdeka</span>
+                    </div>
+                </div>
+
+                <!-- Tabs for Maintenance -->
+                <div class="mb-4 border-b border-gray-200">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="maintenance-tabs">
+                        <li class="mr-2">
+                            <button class="inline-block p-4 border-b-2 border-caterpillar-yellow text-caterpillar-black rounded-t-lg active" onclick="switchMaintTab('250')" id="tab-250">PM 250 Jam</button>
+                        </li>
+                        <li class="mr-2">
+                            <button class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg text-gray-500" onclick="switchMaintTab('500')" id="tab-500">PM 500 Jam</button>
+                        </li>
+                        <li class="mr-2">
+                            <button class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg text-gray-500" onclick="switchMaintTab('1000')" id="tab-1000">PM 1000 Jam</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-b-xl rounded-tr-xl border border-slate-200 shadow-sm p-0 overflow-hidden">
+                    
+                    <!-- 250H Checklist -->
+                    <div id="maint-250" class="block">
+                        <div class="bg-yellow-50 p-4 border-b border-yellow-100 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-yellow-800">Perawatan 250 Jam (PM 1)</h3>
+                                <p class="text-xs text-yellow-700">Fokus pada pelumasan awal dan pengecekan filter dasar.</p>
+                            </div>
+                            <span class="text-2xl"><i class="fa-solid fa-oil-can text-yellow-600"></i></span>
+                        </div>
+                        <ul class="divide-y divide-gray-200">
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Ganti Oli Mesin (Engine Oil)</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Ganti Filter Oli Mesin (Engine Oil Filter)</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Periksa Level Oli Hidrolik & Transmisi</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Greasing (Pelumasan) Pin dan Bushing (Attachment)</span>
+                            </li>
+                             <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Kuras Air pada Fuel Water Separator</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 500H Checklist -->
+                    <div id="maint-500" class="hidden">
+                        <div class="bg-blue-50 p-4 border-b border-blue-100 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-blue-800">Perawatan 500 Jam (PM 2)</h3>
+                                <p class="text-xs text-blue-700">Meliputi item 250 Jam + penggantian filter bahan bakar.</p>
+                            </div>
+                            <span class="text-2xl"><i class="fa-solid fa-filter text-blue-600"></i></span>
+                        </div>
+                        <ul class="divide-y divide-gray-200">
+                             <li class="p-4 flex items-center text-gray-500 italic bg-gray-50">
+                                <i class="fa-solid fa-arrow-turn-up rotate-90 mr-4"></i> Lakukan semua item pada PM 250 Jam
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Ganti Filter Bahan Bakar (Fuel Filter)</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Ganti Fuel Water Separator Element</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Periksa Ketegangan Fan Belt (V-Belt)</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Bersihkan Breather Tangki Hidrolik</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 1000H Checklist -->
+                    <div id="maint-1000" class="hidden">
+                        <div class="bg-purple-50 p-4 border-b border-purple-100 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-purple-800">Perawatan 1000 Jam (PM 3)</h3>
+                                <p class="text-xs text-purple-700">Perawatan besar, penggantian oli sistem dan filter udara.</p>
+                            </div>
+                            <span class="text-2xl"><i class="fa-solid fa-gears text-purple-600"></i></span>
+                        </div>
+                        <ul class="divide-y divide-gray-200">
+                            <li class="p-4 flex items-center text-gray-500 italic bg-gray-50">
+                                <i class="fa-solid fa-arrow-turn-up rotate-90 mr-4"></i> Lakukan semua item pada PM 250 & 500 Jam
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Ganti Oli Transmisi & Filternya</span>
+                            </li>
+                             <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Ganti Oli Final Drive (Kiri & Kanan)</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Ganti Filter Udara (Outer & Inner Element)</span>
+                            </li>
+                            <li class="p-4 flex items-center hover:bg-gray-50 transition cursor-pointer" onclick="toggleCheck(this)">
+                                <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center check-box text-transparent transition-colors"><i class="fa-solid fa-check text-sm"></i></div>
+                                <span class="text-slate-700">Periksa Kekencangan Baut ROPS/Cabin</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-quiz" class="hidden animate-fade-in">
+                <div class="max-w-2xl mx-auto">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-2">Evaluasi Pembelajaran</h2>
+                        <p class="text-slate-500">Uji pemahaman Anda tentang materi Teknik Alat Berat.</p>
+                    </div>
+
+                    <div id="quiz-container" class="bg-white rounded-2xl shadow-md border border-slate-200 p-8">
+                        <div class="flex justify-between items-center mb-6 text-sm font-semibold text-gray-500">
+                            <span id="question-counter">Pertanyaan 1 dari 3</span>
+                            <span class="px-3 py-1 bg-gray-100 rounded-full"><i class="fa-regular fa-clock"></i> <span id="timer">00:00</span></span>
+                        </div>
+
+                        <h3 id="question-text" class="text-xl font-bold text-slate-800 mb-6 line-clamp-3">Komponen pada sistem hidrolik yang berfungsi mengubah energi fluida menjadi energi gerak mekanis (translasi/lurus) adalah...</h3>
+
+                        <div id="options-container" class="space-y-3">
+                            <!-- Options injected by JS -->
+                        </div>
+
+                        <div class="mt-8 flex justify-end">
+                            <button id="next-btn" onclick="nextQuestion()" class="bg-caterpillar-black text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 transition hidden disabled:opacity-50 disabled:cursor-not-allowed">Selanjutnya <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="quiz-result" class="hidden bg-white rounded-2xl shadow-md border border-slate-200 p-8 text-center">
+                        <div class="w-24 h-24 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-trophy text-5xl text-green-500"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 mb-2">Selesai!</h2>
+                        <p class="text-slate-600 mb-6">Anda telah menyelesaikan evaluasi.</p>
+                        <div class="text-6xl font-bold text-caterpillar-black mb-2" id="score-display">100</div>
+                        <p class="text-sm text-gray-500 mb-8">Nilai Anda</p>
+                        <button onclick="resetQuiz()" class="bg-caterpillar-yellow text-caterpillar-black px-6 py-3 rounded-lg font-bold hover:bg-yellow-400 transition w-full shadow">Coba Lagi</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Safe Space at bottom for scrolling -->
+            <div class="h-20"></div>
+        </div>
+    </main>
+
+    <!-- Modal Message Box (Replacing alert) -->
+    <div id="msg-box" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-200" id="msg-content">
+            <div class="text-center mb-4">
+                <div id="msg-icon" class="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-3xl mb-4">
+                    <i class="fa-solid fa-circle-info"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800" id="msg-title">Informasi</h3>
+                <p class="text-slate-600 mt-2 text-sm" id="msg-text">Pesan teks disini.</p>
+            </div>
+            <button onclick="closeMsgBox()" class="w-full bg-slate-800 text-white font-bold py-2 rounded-lg hover:bg-slate-700 transition">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // --- UI Navigation Logic ---
+        function switchTab(tabId) {
+            // Update sidebar active state
+            document.querySelectorAll('aside nav button').forEach(btn => {
+                btn.classList.remove('nav-active', 'bg-gray-800', 'text-caterpillar-yellow');
+                btn.classList.add('text-gray-300');
+                if(btn.id === `btn-${tabId}`) {
+                    btn.classList.add('nav-active');
+                    btn.classList.remove('text-gray-300');
+                }
+            });
+
+            // Update content visibility
+            const sections = ['dashboard', 'engine', 'hydraulic', 'powertrain', 'maintenance', 'quiz'];
+            sections.forEach(id => {
+                const el = document.getElementById(`content-${id}`);
+                if(el) {
+                    if(id === tabId) {
+                        el.classList.remove('hidden');
+                        el.classList.add('block');
+                        // Trigger reflow for animation
+                        void el.offsetWidth;
+                    } else {
+                        el.classList.add('hidden');
+                        el.classList.remove('block');
+                    }
+                }
+            });
+
+            // Close mobile sidebar if open
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+
+            // Specific Tab Initializations
+            if(tabId === 'hydraulic') {
+                if(!hydLabInitialized) initHydraulicLab();
+            }
+            if(tabId === 'quiz') {
+                resetQuiz();
+            }
+        }
+
+        // Mobile Sidebar Toggle
+        document.getElementById('open-sidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('-translate-x-full');
+        });
+        document.getElementById('close-sidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+        });
+
+        // Message Box function
+        function showMessage(title, text, type="info") {
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-text').innerText = text;
+            
+            const iconDiv = document.getElementById('msg-icon');
+            if(type === 'error') {
+                iconDiv.className = "w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center text-red-500 text-3xl mb-4";
+                iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            } else if (type === 'success') {
+                iconDiv.className = "w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center text-green-500 text-3xl mb-4";
+                iconDiv.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                iconDiv.className = "w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-3xl mb-4";
+                iconDiv.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+            }
+
+            const msgBox = document.getElementById('msg-box');
+            msgBox.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('msg-content').classList.remove('scale-95');
+                document.getElementById('msg-content').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeMsgBox() {
+            document.getElementById('msg-content').classList.remove('scale-100');
+            document.getElementById('msg-content').classList.add('scale-95');
+            setTimeout(() => {
+                document.getElementById('msg-box').classList.add('hidden');
+            }, 200);
+        }
+
+        // --- Engine Section Logic ---
+        const engineData = {
+            'head': { title: 'Cylinder Head', desc: 'Menutup blok silinder bagian atas dan sebagai tempat dudukan mekanisme katup (valve), injektor, dan ruang bakar.' },
+            'piston': { title: 'Piston & Connecting Rod', desc: 'Menerima tekanan gas hasil pembakaran dan meneruskannya ke poros engkol (crankshaft) melalui batang torak.' },
+            'crankshaft': { title: 'Crankshaft (Poros Engkol)', desc: 'Mengubah gerak naik turun (translasi) dari piston menjadi gerak putar (rotasi) yang diteruskan ke flywheel.' },
+            'turbo': { title: 'Turbocharger', desc: 'Memanfaatkan gas buang untuk memutar turbin, yang menggerakkan kompresor udara untuk memompa lebih banyak udara bersih ke ruang bakar, sehingga tenaga meningkat.' }
+        };
+
+        function showEngineInfo(part) {
+            const panel = document.getElementById('engine-info-panel');
+            const data = engineData[part];
+            if(data) {
+                panel.innerHTML = `
+                    <div class="w-12 h-12 bg-caterpillar-yellow text-caterpillar-black rounded-full flex items-center justify-center text-xl mb-4 shadow">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">${data.title}</h3>
+                    <p class="text-slate-600 leading-relaxed">${data.desc}</p>
+                `;
+                
+                // Add tiny animation
+                panel.classList.remove('animate-fade-in');
+                void panel.offsetWidth;
+                panel.classList.add('animate-fade-in');
+            }
+        }
+
+        // --- Maintenance Section Logic ---
+        function switchMaintTab(hours) {
+            // Reset tabs
+            ['250', '500', '1000'].forEach(h => {
+                document.getElementById(`tab-${h}`).classList.remove('border-caterpillar-yellow', 'text-caterpillar-black');
+                document.getElementById(`tab-${h}`).classList.add('border-transparent', 'text-gray-500');
+                document.getElementById(`maint-${h}`).classList.add('hidden');
+            });
+
+            // Activate selected
+            document.getElementById(`tab-${hours}`).classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById(`tab-${hours}`).classList.add('border-caterpillar-yellow', 'text-caterpillar-black');
+            document.getElementById(`maint-${hours}`).classList.remove('hidden');
+        }
+
+        function toggleCheck(el) {
+            const checkbox = el.querySelector('.check-box');
+            const text = el.querySelector('span');
+            
+            if(checkbox.classList.contains('text-transparent')) {
+                // Check
+                checkbox.classList.remove('text-transparent', 'border-gray-300');
+                checkbox.classList.add('text-white', 'bg-green-500', 'border-green-500');
+                text.classList.add('line-through', 'text-gray-400');
+            } else {
+                // Uncheck
+                checkbox.classList.add('text-transparent', 'border-gray-300');
+                checkbox.classList.remove('text-white', 'bg-green-500', 'border-green-500');
+                text.classList.remove('line-through', 'text-gray-400');
+            }
+        }
+
+        
+        let hydLabInitialized = false;
+        let canvas, ctx;
+        let animId;
+        
+        // System State
+        const sys = {
+            pumpOn: false,
+            pressure: 0,
+            maxPressure: 3000,
+            valveState: 'neutral', // neutral, extend, retract
+            cylPos: 0, // 0 to 100
+            cylSpeed: 0.5,
+            flowParticles: []
+        };
+
+        // Layout constants for drawing
+        const L = {
+            tankX: 100, tankY: 300, tankW: 80, tankH: 60,
+            pumpX: 250, pumpY: 280, pumpR: 30,
+            valveX: 350, valveY: 150, valveW: 100, valveH: 60,
+            cylX: 550, cylY: 80, cylW: 160, cylH: 50, rodL: 120,
+            pipeW: 8
+        };
+
+        function initHydraulicLab() {
+            canvas = document.getElementById('hydraulic-canvas');
+            if(!canvas) return;
+            ctx = canvas.getContext('2d');
+            hydLabInitialized = true;
+            
+            // Adjust canvas resolution for high DPI displays
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            // Generate initial particles
+            for(let i=0; i<100; i++) {
+                sys.flowParticles.push({
+                    x: Math.random() * 800,
+                    y: Math.random() * 400,
+                    speed: 0,
+                    color: 'rgba(100,100,255,0.5)'
+                });
+            }
+
+            requestAnimationFrame(drawLab);
+        }
+
+        // UI Controls for Lab
+        window.togglePump = function() {
+            const cb = document.getElementById('pump-switch');
+            const status = document.getElementById('pump-status-text');
+            sys.pumpOn = cb.checked;
+            status.innerText = sys.pumpOn ? "RUNNING" : "OFF";
+            status.className = sys.pumpOn ? "text-xs text-green-400 mt-1 font-mono font-bold" : "text-xs text-red-400 mt-1 font-mono";
+            
+            if(!sys.pumpOn) {
+                sys.pressure = 0;
+            }
+        }
+
+        window.setValveState = function(state) {
+            sys.valveState = state;
+            
+            // Update button styles
+            ['retract', 'neutral', 'extend'].forEach(s => {
+                const btn = document.getElementById(`btn-${s}`);
+                if(s === state) {
+                    btn.classList.add('bg-blue-600', 'shadow');
+                    btn.classList.remove('hover:bg-slate-600');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'shadow');
+                    btn.classList.add('hover:bg-slate-600');
+                }
+            });
+        }
+
+        function updatePhysics() {
+            // Update pressure
+            if (sys.pumpOn) {
+                if (sys.valveState === 'neutral') {
+                    // Relief valve opens, pressure low
+                    sys.pressure = sys.pressure * 0.9 + 200 * 0.1;
+                } else if (sys.valveState === 'extend') {
+                    if (sys.cylPos < 100) {
+                        sys.pressure = sys.pressure * 0.8 + 1500 * 0.2; // Working pressure
+                        sys.cylPos += sys.cylSpeed;
+                    } else {
+                        sys.pressure = sys.pressure * 0.9 + sys.maxPressure * 0.1; // Max pressure at end of stroke
+                    }
+                } else if (sys.valveState === 'retract') {
+                    if (sys.cylPos > 0) {
+                        sys.pressure = sys.pressure * 0.8 + 1200 * 0.2;
+                        sys.cylPos -= sys.cylSpeed;
+                    } else {
+                        sys.pressure = sys.pressure * 0.9 + sys.maxPressure * 0.1;
+                    }
+                }
+            } else {
+                sys.pressure = sys.pressure * 0.9; // bleed off
+            }
+
+            // Clamp pos
+            sys.cylPos = Math.max(0, Math.min(100, sys.cylPos));
+            
+            // Update UI Gauges
+            document.getElementById('gauge-pressure').innerText = Math.round(sys.pressure);
+            document.getElementById('gauge-position').innerText = Math.round(sys.cylPos);
+
+            // Update DOM Load Element visually matching cylinder position
+            const loadEl = document.getElementById('load-weight');
+            if(loadEl) {
+                // Map 0-100 to pixel translation (rough estimate based on rod length)
+                const movePx = (sys.cylPos / 100) * 100; 
+                loadEl.style.transform = `translateX(${movePx}px)`;
+            }
+        }
+
+        function drawLab() {
+            if(!ctx) return;
+            const w = 800; // logical width
+            const h = 400;
+
+            ctx.clearRect(0, 0, w, h);
+            updatePhysics();
+
+            // Colors based on pressure/state
+            const cHighPressure = `rgb(239, 68, 68)`; // Red
+            const cLowPressure = `rgb(59, 130, 246)`; // Blue
+            const cNeutral = `rgb(100, 116, 139)`; // Slate
+            
+            let pColorToValve = sys.pumpOn ? cHighPressure : cNeutral;
+            let pColorA = cNeutral; // Line to Head end (Extend)
+            let pColorB = cNeutral; // Line to Rod end (Retract)
+            
+            if(sys.pumpOn) {
+                if(sys.valveState === 'extend') { pColorA = cHighPressure; pColorB = cLowPressure; }
+                if(sys.valveState === 'retract') { pColorB = cHighPressure; pColorA = cLowPressure; }
+            }
+
+            // --- Draw Pipes (Background) ---
+            ctx.lineWidth = L.pipeW;
+            ctx.lineJoin = 'round';
+            
+            // Tank to Pump
+            ctx.strokeStyle = cLowPressure;
+            ctx.beginPath(); ctx.moveTo(L.tankX + 40, L.tankY); ctx.lineTo(L.tankX + 40, L.pumpY); ctx.lineTo(L.pumpX - L.pumpR, L.pumpY); ctx.stroke();
+            
+            // Pump to Valve (P line)
+            ctx.strokeStyle = pColorToValve;
+            ctx.beginPath(); ctx.moveTo(L.pumpX, L.pumpY - L.pumpR); ctx.lineTo(L.pumpX, L.valveY + L.valveH); ctx.lineTo(L.valveX + 30, L.valveY + L.valveH); ctx.stroke();
+            
+            // Valve to Tank (T line) - Returns fluid
+            ctx.strokeStyle = cLowPressure;
+            ctx.beginPath(); ctx.moveTo(L.valveX + 70, L.valveY + L.valveH); ctx.lineTo(L.valveX + 70, L.tankY + 20); ctx.lineTo(L.tankX + L.tankW, L.tankY + 20); ctx.stroke();
+
+            // Valve to Cyl (A Line - Head end)
+            ctx.strokeStyle = pColorA;
+            ctx.beginPath(); ctx.moveTo(L.valveX + 30, L.valveY); ctx.lineTo(L.valveX + 30, L.cylY + L.cylH + 20); ctx.lineTo(L.cylX + 20, L.cylY + L.cylH + 20); ctx.lineTo(L.cylX + 20, L.cylY + L.cylH); ctx.stroke();
+
+            // Valve to Cyl (B Line - Rod end)
+            ctx.strokeStyle = pColorB;
+            ctx.beginPath(); ctx.moveTo(L.valveX + 70, L.valveY); ctx.lineTo(L.valveX + 70, L.cylY + L.cylH + 40); ctx.lineTo(L.cylX + L.cylW - 20, L.cylY + L.cylH + 40); ctx.lineTo(L.cylX + L.cylW - 20, L.cylY + L.cylH); ctx.stroke();
+
+            // --- Flow Animation (Particles) ---
+            if(sys.pumpOn) {
+                // Simplified flow visualization
+                const time = Date.now() / 100;
+                ctx.setLineDash([5, 10]);
+                ctx.lineDashOffset = -time * 2;
+                ctx.lineWidth = 2;
+                
+                // P line flow
+                ctx.strokeStyle = 'white';
+                ctx.beginPath(); ctx.moveTo(L.pumpX, L.pumpY - L.pumpR); ctx.lineTo(L.pumpX, L.valveY + L.valveH); ctx.stroke();
+                
+                ctx.setLineDash([]);
+            }
+
+            // --- Draw Components ---
+            
+            // 1. Tank
+            ctx.fillStyle = '#334155'; ctx.fillRect(L.tankX, L.tankY, L.tankW, L.tankH);
+            ctx.fillStyle = cLowPressure; ctx.fillRect(L.tankX+5, L.tankY+20, L.tankW-10, L.tankH-25);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth=2; ctx.strokeRect(L.tankX, L.tankY, L.tankW, L.tankH);
+            
+            // 2. Pump
+            ctx.beginPath(); ctx.arc(L.pumpX, L.pumpY, L.pumpR, 0, Math.PI*2);
+            ctx.fillStyle = '#475569'; ctx.fill();
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth=3; ctx.stroke();
+            // Pump symbol (triangle)
+            ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.moveTo(L.pumpX, L.pumpY - 15); ctx.lineTo(L.pumpX - 10, L.pumpY + 5); ctx.lineTo(L.pumpX + 10, L.pumpY + 5); ctx.fill();
+            // Rotation animation if on
+            if(sys.pumpOn) {
+                ctx.save();
+                ctx.translate(L.pumpX, L.pumpY);
+                ctx.rotate(Date.now() / 100);
+                ctx.strokeStyle = '#f87171'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-20,0); ctx.lineTo(20,0); ctx.moveTo(0,-20); ctx.lineTo(0,20); ctx.stroke();
+                ctx.restore();
+            }
+
+            // 3. Directional Valve (Simplified Block)
+            ctx.fillStyle = '#64748b'; ctx.fillRect(L.valveX, L.valveY, L.valveW, L.valveH);
+            ctx.strokeStyle = '#cbd5e1'; ctx.strokeRect(L.valveX, L.valveY, L.valveW, L.valveH);
+            
+            // Draw internal paths based on state to show logic
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 3;
+            ctx.beginPath();
+            if(sys.valveState === 'neutral') {
+                // P to T loop
+                ctx.moveTo(L.valveX + 30, L.valveY + L.valveH);
+                ctx.lineTo(L.valveX + 30, L.valveY + L.valveH/2);
+                ctx.lineTo(L.valveX + 70, L.valveY + L.valveH/2);
+                ctx.lineTo(L.valveX + 70, L.valveY + L.valveH);
+                // A and B blocked
+                ctx.moveTo(L.valveX+20, L.valveY+10); ctx.lineTo(L.valveX+40, L.valveY+10);
+                ctx.moveTo(L.valveX+60, L.valveY+10); ctx.lineTo(L.valveX+80, L.valveY+10);
+            } else if (sys.valveState === 'extend') {
+                // P to A (Straight up left)
+                ctx.moveTo(L.valveX+30, L.valveY+L.valveH); ctx.lineTo(L.valveX+30, L.valveY);
+                // B to T (Straight down right)
+                ctx.moveTo(L.valveX+70, L.valveY); ctx.lineTo(L.valveX+70, L.valveY+L.valveH);
+            } else if (sys.valveState === 'retract') {
+                // P to B (Cross right)
+                ctx.moveTo(L.valveX+30, L.valveY+L.valveH); ctx.lineTo(L.valveX+70, L.valveY);
+                // A to T (Cross left)
+                ctx.moveTo(L.valveX+70, L.valveY+L.valveH); ctx.lineTo(L.valveX+30, L.valveY);
+            }
+            ctx.stroke();
+
+            // 4. Cylinder
+            ctx.fillStyle = '#334155'; ctx.fillRect(L.cylX, L.cylY, L.cylW, L.cylH); // Barrel
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.strokeRect(L.cylX, L.cylY, L.cylW, L.cylH);
+            
+            // Fluid inside cylinder
+            const maxStroke = L.cylW - 30; // max distance piston can move inside
+            const strokePx = (sys.cylPos / 100) * maxStroke;
+            
+            // Head end fluid
+            ctx.fillStyle = pColorA;
+            ctx.fillRect(L.cylX+2, L.cylY+2, 10 + strokePx, L.cylH-4);
+            // Rod end fluid
+            ctx.fillStyle = pColorB;
+            ctx.fillRect(L.cylX + 15 + strokePx, L.cylY+2, L.cylW - (15+strokePx) - 2, L.cylH-4);
+
+            // Piston & Rod
+            const pistonX = L.cylX + 10 + strokePx;
+            ctx.fillStyle = '#cbd5e1'; 
+            ctx.fillRect(pistonX, L.cylY + 5, 10, L.cylH - 10); // Piston head
+            ctx.fillRect(pistonX + 10, L.cylY + L.cylH/2 - 5, L.rodL, 10); // Rod
+
+            // Connecting eye
+            ctx.beginPath(); ctx.arc(pistonX + 10 + L.rodL, L.cylY + L.cylH/2, 12, 0, Math.PI*2);
+            ctx.fill(); ctx.stroke();
+
+            // Continue loop
+            animId = requestAnimationFrame(drawLab);
+        }
+
+        // Handle window resize for canvas (basic handling)
+        window.addEventListener('resize', () => {
+            if (hydLabInitialized && canvas) {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = 400 * dpr; // fixed height logic
+                ctx.scale(dpr, dpr);
+            }
+        });
+
+        const quizData = [
+            {
+                q: "Komponen pada sistem hidrolik yang berfungsi mengubah energi fluida (tekanan & aliran) menjadi energi gerak mekanis (translasi/lurus) adalah...",
+                opts: ["Pompa Hidrolik", "Motor Hidrolik", "Silinder Hidrolik", "Control Valve"],
+                ans: 2 // index of Silinder Hidrolik
+            },
+            {
+                q: "Pada perawatan berkala 250 Jam (PM 1) alat berat, tindakan apa yang wajib dilakukan?",
+                opts: ["Mengganti oli final drive", "Mengganti oli mesin (engine oil) dan filter", "Turun mesin (Overhaul)", "Mengganti V-Belt"],
+                ans: 1
+            },
+            {
+                q: "Komponen pada sistem pemindah tenaga yang berfungsi melipatgandakan torsi dari engine menggunakan media fluida adalah...",
+                opts: ["Planetary Gear", "Differential", "Final Drive", "Torque Converter"],
+                ans: 3
+            },
+            {
+                q: "Apa fungsi utama dari Turbocharger pada mesin diesel alat berat?",
+                opts: ["Mendinginkan air radiator", "Menambah suplai bahan bakar", "Memompa udara lebih banyak ke ruang bakar", "Mengurangi asap buang"],
+                ans: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        function loadQuestion() {
+            if(currentQuestion >= quizData.length) {
+                showResult();
+                return;
+            }
+
+            const q = quizData[currentQuestion];
+            document.getElementById('question-counter').innerText = `Pertanyaan ${currentQuestion + 1} dari ${quizData.length}`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            selectedOption = null;
+            document.getElementById('next-btn').classList.add('hidden');
+
+            q.opts.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-caterpillar-yellow hover:bg-yellow-50 transition font-medium text-slate-700 option-btn flex items-center justify-between";
+                btn.innerHTML = `<span>${String.fromCharCode(65 + index)}. ${opt}</span> <i class="fa-solid fa-circle-check text-xl hidden text-green-500 check-icon"></i>`;
+                btn.onclick = () => selectOption(index, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(index, btnEl) {
+            selectedOption = index;
+            
+            // Reset styles
+            document.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('border-caterpillar-yellow', 'bg-yellow-50', 'ring-2', 'ring-yellow-400');
+                b.querySelector('.check-icon').classList.add('hidden');
+            });
+            
+            // Apply selected styles
+            btnEl.classList.add('border-caterpillar-yellow', 'bg-yellow-50', 'ring-2', 'ring-yellow-400');
+            btnEl.querySelector('.check-icon').classList.remove('hidden');
+            
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            if(selectedOption === null) return;
+            
+            if(selectedOption === quizData[currentQuestion].ans) {
+                score += 100 / quizData.length;
+            }
+            
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function showResult() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            const resultDiv = document.getElementById('quiz-result');
+            resultDiv.classList.remove('hidden');
+            
+            // Animate score counter
+            let displayScore = 0;
+            const finalScore = Math.round(score);
+            const scoreEl = document.getElementById('score-display');
+            
+            const interval = setInterval(() => {
+                if(displayScore >= finalScore) {
+                    clearInterval(interval);
+                    scoreEl.innerText = finalScore;
+                    
+                    if(finalScore >= 75) {
+                        scoreEl.classList.add('text-green-500');
+                        showMessage("Luar Biasa!", "Anda telah memahami materi ini dengan baik.", "success");
+                    } else {
+                        scoreEl.classList.add('text-red-500');
+                        showMessage("Tetap Semangat", "Silakan pelajari materi lagi dan coba kuis kembali.", "info");
+                    }
+                } else {
+                    displayScore += 2;
+                    scoreEl.innerText = displayScore;
+                }
+            }, 30);
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            const scoreEl = document.getElementById('score-display');
+            scoreEl.className = "text-6xl font-bold text-caterpillar-black mb-2"; // reset colors
+            loadQuestion();
+        }
+
+        // Initialize first state
+        window.onload = () => {
+            switchTab('dashboard');
+        };
+
+    </script>
+</body>
+</html>
